@@ -1,0 +1,8 @@
+TwitterStreamWithAWS/Examples/*
+TwitterStreamWithAWS/Misc/*
+TwitterStreamWithAWS/Scratches/*
+TwitterStreamWithAWS/export_secure_keys.sh
+.venv/*
+.vim/*
+
+

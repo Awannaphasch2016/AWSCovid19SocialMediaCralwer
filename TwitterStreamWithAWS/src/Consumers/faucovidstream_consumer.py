@@ -1,22 +1,19 @@
+import ast
 import json
+import os
 import time
 from pprint import pprint
 
-import ast
 import boto3
 
-# stream_name = 'fau_covid_stream'
-# stream_name = 'faucovidstreamsentiment'
-# stream_name = 'wildrydes'
-# stream_name = 'wildrydes-summary'
-# stream_name = "faucovidstream_input"
 stream_name = "faucovidstreamsentiment"
 kinesis_client = boto3.client(
     "kinesis",
     region_name="us-east-2",  # enter the region
-    aws_access_key_id="AKIA3ZMDQYM6TSTIV6GN",
-    # # fill your AWS access key id
-    aws_secret_access_key="2RhJoFa21eTmYyQW/Gui3jhCU4etO6bATm1d5Qb0",
+    # aws_access_key_id="AKIA3ZMDQYM6TSTIV6GN",
+    # aws_secret_access_key="2RhJoFa21eTmYyQW/Gui3jhCU4etO6bATm1d5Qb0",
+    aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
 )
 
 # stream_name = 'transforminputtoS3'
