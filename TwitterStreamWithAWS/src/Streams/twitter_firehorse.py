@@ -65,6 +65,7 @@ class TweetStreamListener(StreamListener):
 
 # fill the name of Kinesis data stream you created
 stream_name = "faucovidstream_input"
+# stream_name = "faucovidstreamsentiment"
 
 if __name__ == "__main__":
 
