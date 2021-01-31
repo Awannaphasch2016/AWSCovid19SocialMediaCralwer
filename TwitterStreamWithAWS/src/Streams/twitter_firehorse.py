@@ -1,6 +1,9 @@
 import json
 import os
 import sys
+import time
+from datetime import datetime
+from http.client import IncompleteRead  # Python 3
 
 import boto3
 from tweepy import OAuthHandler, Stream
@@ -27,6 +30,7 @@ class TweetStreamListener(StreamListener):
                 print(message)
 
                 timestamp_ms = tweet["timestamp_ms"]
+
                 kinesis_input_data = bytes(message, "utf-8")
 
                 response = kinesis_client.put_record(
@@ -34,15 +38,13 @@ class TweetStreamListener(StreamListener):
                     Data=kinesis_input_data,
                     PartitionKey=timestamp_ms,
                 )
-                print(response)
+
+                # print(response)
+                print(datetime.fromtimestamp(int(timestamp_ms) / 1000.0))
                 print("--------")
 
         except AttributeError as ae:
             print(ae)
-        except IncompleteRead as ir:
-            print(ir)
-        except ProtocolError as pe:
-            print(pe)
         except Exception as ex:
             print(ex)
 
@@ -67,6 +69,7 @@ class TweetStreamListener(StreamListener):
 stream_name = "faucovidstream_input"
 # stream_name = "faucovidstreamsentiment"
 
+
 if __name__ == "__main__":
 
     # create kinesis client connection
@@ -85,5 +88,42 @@ if __name__ == "__main__":
     # search twitter for tags or keywords from cli parameters
     query = sys.argv[1:]  # list of CLI arguments
     query_fname = " ".join(query)  # string
+
     while True:
-        stream.filter(track=query, stall_warnings=True)
+
+        try:
+            stream.filter(track=query, stall_warnings=True)
+
+        except IncompleteRead as ir:
+            # reconnect and keep trucking
+            print("the following error is caught..")
+            print(ir)
+
+            print("reconnect the network..")
+            listener = TweetStreamListener()
+            # set twitter keys/tokens
+            auth = OAuthHandler(consumer_key, consumer_secret)
+            auth.set_access_token(access_token, access_token_secret)
+            # create instance of the tweepy stream
+            stream = Stream(auth, listener)
+            # search twitter for tags or keywords from cli parameters
+            query = sys.argv[1:]  # list of CLI arguments
+            query_fname = " ".join(query)  # string
+            stream.filter(track=query, stall_warnings=True)
+
+        except Exception as ex:
+            print("the following error is caught..")
+            print(ex)
+
+            print("reconnect the network..")
+
+            listener = TweetStreamListener()
+            # set twitter keys/tokens
+            auth = OAuthHandler(consumer_key, consumer_secret)
+            auth.set_access_token(access_token, access_token_secret)
+            # create instance of the tweepy stream
+            stream = Stream(auth, listener)
+            # search twitter for tags or keywords from cli parameters
+            query = sys.argv[1:]  # list of CLI arguments
+            query_fname = " ".join(query)  # string
+            stream.filter(track=query, stall_warnings=True)

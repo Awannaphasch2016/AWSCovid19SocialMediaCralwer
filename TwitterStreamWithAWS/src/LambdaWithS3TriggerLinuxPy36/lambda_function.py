@@ -5,7 +5,7 @@ Article link: https://aws.amazon.com/blogs/big-data/building-a-near-real-time-di
 import boto3
 import json
 
-import twitter_to_es
+# import twitter_to_es
 
 # aws lambda update-function-code --function-name faucovidstream --zip-file fileb://lambda_s3_to_dynamo_and_kinesis.zip --region us-east-2
 # from Examples.Demo.AWS_Related.TwitterStreamWithAWS.LambdaWithS3Trigger import \
@@ -17,12 +17,34 @@ headers = {"Content-Type": "application/json"}
 
 s3 = boto3.client("s3")
 kinesis_client = boto3.client("kinesis")
-# dynamoDb_client = boto3.client('dynamodb')
+dynamodb_client = boto3.resource("dynamodb")
+table = dynamodb_client.Table("faucovidstream_twitter_with_sentiment")
+
+# {
+#     "id_str": "1353185440401129478",
+#     "hashtags": [],
+#     "coordinates": None,
+#     "timestamp_ms": "1611459524618",
+#     "text": "RT @mas1z1: “once COVID is over” is starting to sound a lot like “he'll change😩😩😩\"",
+#     "user": {"id": 1283078286382444544, "name": "Valentina 🦋"},
+#     "mentions": ["@mas1z1"],
+#     "emoticons": [],
+#     "sentiments": 0.2,
+# }
+
+
+def convert_to_dynamodb_format(tw, platform):
+    # tw["user"] = json.loads(tw["user"])
+    # tw["platform"] = "twitter"
+    tw.update(platform)
+    return tw
 
 
 # Lambda execution starts here
 def handler(event, context):
     for record in event["Records"]:
+        # print(record)
+        # print("xxxxxxxxxxxxxxxxxxxxxxxxxx")
 
         # Get the bucket name and key for the new file
         bucket = record["s3"]["bucket"]["name"]
@@ -70,10 +92,21 @@ def handler(event, context):
                 Data=json.dumps(tweet),
                 PartitionKey=timestamp_ms,
             )
-            print(response)
+
+            print(type(tweet))
+            print(tweet)
+
+            # print([(i, type(j)) for i, j in tweet.items()])
+            # tweet["user"] = json.dumps(tweet["user"])
+            # print([(i, type(j)) for i, j in tweet.items()])
+
+            # table.put_item(Item={"platform": "test", "timestamp_ms": "1607966429357"})
+
+            table.put_item(
+                Item=convert_to_dynamodb_format(tweet, {"platform": "twitter"})
+            )
             print("===\n\n\n")
 
-        # dynamoDb_client.put_item()
         # # Load data into ES
         # try:
         #     twitter_to_es.load(tweets)

@@ -1,4 +1,15 @@
 # =============
+# == AWS Config
+# =============
+kinesiss_faucovidstreamsentiment = "faucovidstreamsentiment"
+API_BASE_URL = "https://77ue66yk77.execute-api.us-east-2.amazonaws.com/dev/"
+API_STREAM = API_BASE_URL + "streams/"
+API_DYNAMODB = API_BASE_URL + "dynamodb/"
+
+dynamodb_sentiment_table = "faucovidstream_twitter_with_sentiment"
+
+
+# =============
 # == Aspects
 # =============
 ALL_ASPECTS = [

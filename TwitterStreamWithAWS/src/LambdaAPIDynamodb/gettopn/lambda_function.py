@@ -37,6 +37,8 @@ def lambda_handler(event, context):
     aspect = ""
     args = ""
 
+    print(event)
+
     table_name = event["TableName"]
     attrs = event["ExpressionAttributeValues"]
 
@@ -51,19 +53,19 @@ def lambda_handler(event, context):
         elif i == ":v4":
             args = event["ExpressionAttributeValues"][":v4"]["S"]
 
-    # if args == "":
-    #     return {
-    #         "statusCode": 400,
-    #         "ErrorMessage": "please provide value for 'args' parameters",
-    #     }
-    # else:
-    #     try:
-    #         args = int(args)
-    #     except:
-    #         return {
-    #             "statusCode": 400,
-    #             "ErrorMessage": "args paramater can't be converted to int",
-    #         }
+    if args == "":
+        return {
+            "statusCode": 400,
+            "ErrorMessage": "please provide value for 'args' parameters",
+        }
+    else:
+        try:
+            args = int(args)
+        except:
+            return {
+                "statusCode": 400,
+                "ErrorMessage": "args paramater can't be converted to int",
+            }
 
     dynamodb_client = init_dynamodb()
     table = dynamodb_client.Table(table_name)
@@ -74,26 +76,26 @@ def lambda_handler(event, context):
         if since != "":
             if aspect != "":
                 response = table.query(
-                    KeyConditionExpression=Key("platform").eq(platform),
-                    # & Key("timestamp_ms").gte(since),
-                    FilterExpression=Attr("text").contains(aspect),
-                )
-            else:
-                response = table.query(
-                    KeyConditionExpression=Key("platform").eq(platform),
-                    # & Key("timestamp_ms").gte(since)
-                )
-        elif until != "":
-            if aspect != "":
-                response = table.query(
-                    KeyConditionExpression=Key("platform").eq(platform),
-                    # & Key("timestamp_ms").lte(until),
+                    KeyConditionExpression=Key("platform").eq(platform)
+                    & Key("timestamp_ms").gte(since),
                     FilterExpression=Attr("text").contains(aspect),
                 )
             else:
                 response = table.query(
                     KeyConditionExpression=Key("platform").eq(platform)
-                    # & Key("timestamp_ms").lte(until)
+                    & Key("timestamp_ms").gte(since)
+                )
+        elif until != "":
+            if aspect != "":
+                response = table.query(
+                    KeyConditionExpression=Key("platform").eq(platform)
+                    & Key("timestamp_ms").lte(until),
+                    FilterExpression=Attr("text").contains(aspect),
+                )
+            else:
+                response = table.query(
+                    KeyConditionExpression=Key("platform").eq(platform)
+                    & Key("timestamp_ms").lte(until)
                 )
         else:
             if aspect != "":
@@ -109,6 +111,7 @@ def lambda_handler(event, context):
         if aspect != "":
             response = table.query(
                 KeyConditionExpression=Key("platform").eq(platform),
+                # & Key("timestamp_ms").between(since, until),
                 # & Key("timestamp_ms").lte(until)
                 # & Key("timestamp_ms").gte(since),
                 FilterExpression=Attr("text").contains(aspect),
@@ -120,26 +123,17 @@ def lambda_handler(event, context):
                 # & Key("timestamp_ms").gte(since)
             )
 
-    # def return_topn(response, args):
-    #     return response["items"][:args]
-    # response = return_topn(response, args)
+    # response = response["items"][: args]
+    items = response["Items"]
+    items.reverse()
+    items = items[-int(args) :]
 
     return {
         "statusCode": 200,
-        # "x": str(event.keys()),
-        # "args": args
-        # "response": response,
-        # "arg": str(event["ExpressionAttributeValues"][":v4"])
-        # "event": event,
-        # "arg": str(event["ExpressionAttributeValues"].keys())
-        "body": {
-            # "message": "hello world",
-            # "x": str(event.keys()),
-            # "table_name": table_name,
-            # "platform": platform
-            "response": response
-            # "since": since,
-            # "until": until
-            # "location": ip.text.replace("\n", "")
-        },
+        # "args": args,
+        "res": list(response.keys()),
+        "event": event,
+        "ScannnedCount": response["ScannedCount"],
+        "count": len(items),
+        "body": {"items": items},
     }
