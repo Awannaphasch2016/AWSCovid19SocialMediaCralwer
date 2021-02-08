@@ -15,9 +15,9 @@
     1. kinesis:faucovidstream_input
     2. firehose:faucovidstream_from_kinesis_to_s3
     3. s3:faucovidstream 
-    4. lambda:faucovidstream 
+    4. lambda:faucovidstream
     5. kinesis:faucovidstreamsentiment
-    6. dynamoDB:faucovidstream_twitter_with_sentiment
+    6. dynamoDB:faucovidstream_twitter_with_sentiment 
 
 ### 
 
