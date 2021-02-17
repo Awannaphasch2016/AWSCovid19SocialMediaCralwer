@@ -19,8 +19,6 @@
     5. kinesis:faucovidstreamsentiment
     6. dynamoDB:faucovidstream_twitter_with_sentiment 
 
-### 
-
 # Directory 
 * src/
     * description: main code that will run in production

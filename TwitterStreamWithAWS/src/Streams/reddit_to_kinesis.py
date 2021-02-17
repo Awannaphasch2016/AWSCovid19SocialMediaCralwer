@@ -67,8 +67,7 @@ all_subreddit_submission_are_collected_from = {}
 
 
 def get_all_class_attributes(my_class: Callable) -> List[str]:
-    all_attributes = inspect.getmembers(
-        my_class, lambda a: not (inspect.isroutine(a)))
+    all_attributes = inspect.getmembers(my_class, lambda a: not (inspect.isroutine(a)))
     public_atributes = [
         a
         for a in all_attributes
@@ -109,12 +108,25 @@ for comment in reddit.subreddit(all_searched_subreddits).stream.comments():
     def _convert_type_to_json_type(keys):
 
         for i in keys:
-            columns_and_value_tuple_dict[i] = str(
-                columns_and_value_tuple_dict[i])
+            columns_and_value_tuple_dict[i] = str(columns_and_value_tuple_dict[i])
         return columns_and_value_tuple_dict
 
-    problem_keys = ['_reddit', '_replies', 'all_awardings', 'author', 'author_flair_richtext', 'awarders',
-                    'gildings', 'mod', 'mod_reports', 'replies', 'submission', 'subreddit', 'treatment_tags', 'user_reports']
+    problem_keys = [
+        "_reddit",
+        "_replies",
+        "all_awardings",
+        "author",
+        "author_flair_richtext",
+        "awarders",
+        "gildings",
+        "mod",
+        "mod_reports",
+        "replies",
+        "submission",
+        "subreddit",
+        "treatment_tags",
+        "user_reports",
+    ]
 
     # problem_keys = ["subreddit", "submission", "replies", "mod", "_reddit"]
     selected_dict = _convert_type_to_json_type(problem_keys)
