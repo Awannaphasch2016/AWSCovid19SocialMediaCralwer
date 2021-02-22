@@ -2,6 +2,7 @@
 Original code contributor: mentzera
 Article link: https://aws.amazon.com/blogs/big-data/building-a-near-real-time-discovery-platform-with-aws/
 """
+
 import boto3
 import json
 
@@ -11,14 +12,14 @@ import json
 # from Examples.Demo.AWS_Related.TwitterStreamWithAWS.LambdaWithS3Trigger import \
 #     twitter_to_es
 
-from tweet_utils import get_tweet, id_field, get_tweet_mapping
+from tweet_utils import get_reddit_data, reddit_id_field, get_tweet_mapping
 
-headers = {"Content-Type": "application/json"}
+headers = {"content-type": "application/json"}
 
 s3 = boto3.client("s3")
 kinesis_client = boto3.client("kinesis")
 dynamodb_client = boto3.resource("dynamodb")
-table = dynamodb_client.Table("faucovidstream_twitter_with_sentiment")
+table = dynamodb_client.Table("faucovidstream_reddit_with_sentiment")
 
 # {
 #     "id_str": "1353185440401129478",
@@ -71,30 +72,31 @@ def handler(event, context):
             # clean trailing comma
             if s3_file_content.endswith(",\n"):
                 s3_file_content = s3_file_content[:-2]
-            tweets_str = "[" + s3_file_content + "]"
+            all_reddit_data_str = "[" + s3_file_content + "]"
             # print(tweets_str)
-            tweets = json.loads(tweets_str)
+            all_reddit_data = json.loads(all_reddit_data_str)
 
         except Exception as e:
             print(e)
             print("Error loading json from object {} in bucket {}".format(key, bucket))
             raise e
 
-        for doc in tweets:
-            tweet = get_tweet(doc)
-            print(tweet["sentiments"])
+        for doc in all_reddit_data:
+            reddit_data = get_reddit_data(doc)  
+            # reddit_data = get_tweet(doc)
+            print(reddit_data["sentiments"])
             # =====================
             # ==kinesis
             # =====================
-            timestamp_ms = str(tweet["timestamp_ms"])
+            timestamp_ms = str(reddit_data["timestamp_ms"])
             response = kinesis_client.put_record(
-                StreamName="faucovidstreamsentiment",
-                Data=json.dumps(tweet),
+                StreamName="faucovidstreamsentiment_reddit",
+                Data=json.dumps(reddit_data),
                 PartitionKey=timestamp_ms,
             )
 
-            print(type(tweet))
-            print(tweet)
+            print(type(reddit_data))
+            print(reddit_data)
 
             # print([(i, type(j)) for i, j in tweet.items()])
             # tweet["user"] = json.dumps(tweet["user"])
@@ -103,34 +105,7 @@ def handler(event, context):
             # table.put_item(Item={"platform": "test", "timestamp_ms": "1607966429357"})
 
             table.put_item(
-                Item=convert_to_dynamodb_format(tweet, {"platform": "twitter"})
+                Item=convert_to_dynamodb_format(reddit_data, {"platform": "reddit"})
             )
             print("===\n\n\n")
 
-        # # Load data into ES
-        # try:
-        #     twitter_to_es.load(tweets)
-        # except Exception as e:
-        #     print(e)
-        #     print('Error loading data into ElasticSearch')
-        #     raise e
-
-        # #=====================
-        # #==kinesis
-        # #=====================
-        #
-        # timestamp_ms = tweets['timestamp_ms']
-        # kinesis_input_data = json.dumbs(twitter)
-        # kinesis_input_data = bytes(kinesis_input_data, 'utf-8')
-        #
-        # response = kinesis_client.put_record(
-        #     StreamName='    faucovidstreamsentiment',
-        #     Data=kinesis_input_data,
-        #     PartitionKey=timestamp_ms,
-        #     SequenceNumberForOrdering='string'
-        # )
-
-        # #=====================
-        # #==dynamoDB
-        # #=====================
-        # dynamoDb_client.put_item()

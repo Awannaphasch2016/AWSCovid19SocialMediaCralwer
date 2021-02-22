@@ -5,8 +5,8 @@ import time
 from pprint import pprint
 
 import boto3
-
-stream_name = "faucovidstreamsentiment"
+# stream_name = "faucovidstreamsentiment"
+stream_name = "faucovidstreamsentiment_reddit"
 kinesis_client = boto3.client(
     "kinesis",
     region_name="us-east-2",  # enter the region

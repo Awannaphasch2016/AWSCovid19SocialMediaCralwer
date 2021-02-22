@@ -15,10 +15,10 @@ import praw
 # from TwitterStreamWithAWS.credentials import REDDIT_CLIENT_SECRET
 # from TwitterStreamWithAWS.credentials import REDDIT_PASSWORD
 # from TwitterStreamWithAWS.credentials import REDDIT_USERNAME
-from TwitterStreamWithAWS.credentials import REDDIT_USER_AGENT
+# from TwitterSteamWithAWS.credentials import REDDIT_USER_AGENT
 
 # from TwitterStreamWithAWS.global_params import REDDIT_DATABASE
-from TwitterStreamWithAWS.global_PARAMS import (
+from TwitterStreamWithAWS.global_params import (
     ALL_SUBREDDIT_REPRESETED_COUNTRY_SUBREDDIT,
     ALL_SUBREDDIT_REPRESETED_GENERAL_COVID_SUBREDDIT,
     ALL_SUBREDDIT_REPRESETED_REGION_COVID_SUBREDDIT,
@@ -38,6 +38,7 @@ REDDIT_CLIENT_ID = os.environ.get("REDDIT_CLIENT_ID")
 REDDIT_CLIENT_SECRET = os.environ.get("REDDIT_CLIENT_SECRET")
 REDDIT_PASSWORD = os.environ.get("REDDIT_PASSWORD")
 REDDIT_USERNAME = os.environ.get("REDDIT_USERNAME")
+REDDIT_USER_AGENT = os.environ.get("REDDIT_USER_AGENT")
 
 reddit = praw.Reddit(
     client_id=REDDIT_CLIENT_ID,
@@ -75,7 +76,6 @@ def get_all_class_attributes(my_class: Callable) -> List[str]:
     ]
     return public_atributes
 
-
 # for comment in reddit.subreddit("all").stream.comments():
 for comment in reddit.subreddit(all_searched_subreddits).stream.comments():
 
@@ -103,7 +103,10 @@ for comment in reddit.subreddit(all_searched_subreddits).stream.comments():
     # pprint(columns_and_value_tuple_dict)
     # exit()
 
-    timestamp_ms = str(int(columns_and_value_tuple_dict["created_utc"]))
+    # timestamp_ms = str(int(columns_and_value_tuple_dict["created_utc"]))
+    columns_and_value_tuple_dict['timestamp_ms']  = str(int(columns_and_value_tuple_dict["created_utc"] * 1000))
+    timestamp_ms = columns_and_value_tuple_dict['timestamp_ms'] 
+
 
     def _convert_type_to_json_type(keys):
 
@@ -138,6 +141,10 @@ for comment in reddit.subreddit(all_searched_subreddits).stream.comments():
 
     # message = json.dumps(columns_and_value_tuple_dict)
     message = json.dumps(selected_dict)
+    message = (
+        message + ",\n"
+    )  # NOTE: not sure what this is used for (could cause potential problem)
+    print(message)
 
     kinesis_input_data = bytes(message, "utf-8")
 

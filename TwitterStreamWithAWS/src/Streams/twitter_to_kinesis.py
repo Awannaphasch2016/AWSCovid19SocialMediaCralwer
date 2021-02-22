@@ -8,6 +8,7 @@ from http.client import IncompleteRead  # Python 3
 import boto3
 from tweepy import OAuthHandler, Stream
 from tweepy.streaming import StreamListener
+from TwitterStreamWithAWS.global_params import kinesis_reddit_stream, kinesis_twitter_stream
 
 # Variables that contains the user credentials to access Twitter API
 consumer_key = os.environ.get("TWITTER_API_CONSUMER_KEY")
@@ -36,7 +37,9 @@ class TweetStreamListener(StreamListener):
                 kinesis_input_data = bytes(message, "utf-8")
 
                 response = kinesis_client.put_record(
-                    StreamName=stream_name,
+                    # StreamName=stream_name,
+                    # StreamName=kinesis_reddit_stream,
+                    StreamName=kinesis_twitter_stream,
                     Data=kinesis_input_data,
                     PartitionKey=timestamp_ms,
                 )
@@ -68,7 +71,7 @@ class TweetStreamListener(StreamListener):
 
 
 # fill the name of Kinesis data stream you created
-stream_name = "faucovidstream_input"
+# stream_name = "faucovidstream_input"
 # stream_name = "faucovidstreamsentiment"
 
 

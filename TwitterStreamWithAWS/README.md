@@ -12,12 +12,26 @@
 ### Kinesis -> S3 -> Lambda -> DynamoDB
 * description: store original stream data in S3, and store modified data in DynamoDb
 *  workflow step by step:
-    1. kinesis:faucovidstream_input
-    2. firehose:faucovidstream_from_kinesis_to_s3
-    3. s3:faucovidstream 
-    4. lambda:faucovidstream
-    5. kinesis:faucovidstreamsentiment
-    6. dynamoDB:faucovidstream_twitter_with_sentiment 
+    1. kinesis
+        * raw input stream
+            * twitter -> faucovidstream_input
+            * reddit -> faucovidstream_input_from_reddit
+    2. firehose
+        * twitter -> faucovidstream_from_kinesis_to_s3
+        * reddit -> faucovidstream_from_reddit_input_kinesis_to_s3
+    3. s3
+        * twitter -> faucovidstream
+        * reddit ->  faucovidstreamreddit
+    4. lambda
+        * twitter -> faucovidstream
+        * reddit -> faucovidstream_reddit
+    5. kinesis
+        * modified input stream (with sentiment)
+            * twitter -> faucovidstreamsentiment
+            * reddit -> faucovidstreamsentiment_reddit
+    6. dynamoDB
+        * twitter -> faucovidstream_twitter_with_sentiment 
+        * reddit -> faucovidstream_reddit_with_sentiment
 
 # Directory 
 * src/
