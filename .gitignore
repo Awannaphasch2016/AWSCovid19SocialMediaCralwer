@@ -5,5 +5,5 @@ TwitterStreamWithAWS/export_secure_keys.sh
 TwitterStreamWithAWS/credentials.py
 .venv/*
 .vim/*
-
-
+tags/
+/tags
