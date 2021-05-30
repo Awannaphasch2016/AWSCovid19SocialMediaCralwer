@@ -180,3 +180,6 @@ def lambda_handler(event, context):
         "count": len(items),
         "body": {"items": items},
     }
+
+# get_all_data_using_paginator()
+

@@ -93,6 +93,7 @@ if __name__ == "__main__":
     # search twitter for tags or keywords from cli parameters
     query = sys.argv[1:]  # list of CLI arguments
     query_fname = " ".join(query)  # string
+    print(query)
 
     while True:
 

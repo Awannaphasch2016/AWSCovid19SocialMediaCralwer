@@ -8,8 +8,10 @@ API_DYNAMODB = API_BASE_URL + "dynamodb/"
 
 
 # --- kinesis
-kinesis_reddit_stream = "faucovidstream_input_from_reddit"
-kinesis_twitter_stream = "faucovidstream_input"
+# kinesis_reddit_stream = "faucovidstream_input_from_reddit"
+kinesis_reddit_stream = "faucovidstream-input-from-reddit"
+kinesis_twitter_stream = "faucovidstream-input"
+# kinesis_twitter_stream = "random"
 # --- dynamodb
 dynamodb_sentiment_table = "faucovidstream_twitter_with_sentiment"
 # --- api gateway

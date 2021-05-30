@@ -76,6 +76,7 @@ def get_all_class_attributes(my_class: Callable) -> List[str]:
     ]
     return public_atributes
 
+
 # for comment in reddit.subreddit("all").stream.comments():
 for comment in reddit.subreddit(all_searched_subreddits).stream.comments():
 
